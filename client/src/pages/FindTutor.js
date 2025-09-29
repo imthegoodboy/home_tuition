@@ -15,6 +15,7 @@ const FindTutor = () => {
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [recommended, setRecommended] = useState([]);
+  const [minRating, setMinRating] = useState(0);
 
   const cbseSubjects = {
     '1': ['English', 'Mathematics', 'Environmental Studies', 'Hindi'],
@@ -80,7 +81,8 @@ const FindTutor = () => {
           pincode: searchData.pincode,
           area: searchData.area,
           subject: searchData.subject,
-          class: searchData.class
+          class: searchData.class,
+          minRating
         }
       });
       setTutors(response.data);
@@ -188,6 +190,14 @@ const FindTutor = () => {
                   {searchData.class && cbseSubjects[searchData.class]?.map(subject => (
                     <option key={subject} value={subject}>{subject}</option>
                   ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Minimum Rating</label>
+                <select value={minRating} onChange={e => setMinRating(parseFloat(e.target.value))} className="form-select">
+                  <option value={0}>Any</option>
+                  <option value={4}>4.0+</option>
+                  <option value={4.5}>4.5+</option>
                 </select>
               </div>
             </div>

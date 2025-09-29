@@ -16,6 +16,7 @@ const Pricing = () => {
   const [searchPincode, setSearchPincode] = useState('');
   const [tutors, setTutors] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [savedQuotes, setSavedQuotes] = useState([]);
 
   // CBSE Subjects for different classes
   const cbseSubjects = {
@@ -36,6 +37,8 @@ const Pricing = () => {
   useEffect(() => {
     fetchClasses();
     fetchPricingConfig();
+    const saved = localStorage.getItem('savedQuotes');
+    if (saved) setSavedQuotes(JSON.parse(saved));
   }, []);
 
   useEffect(() => {
@@ -82,6 +85,27 @@ const Pricing = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const saveQuote = () => {
+    if (!pricing) return;
+    const quote = {
+      id: Date.now(),
+      class: selectedClass,
+      subjects: pricing.subjects,
+      total: pricing.finalAmount,
+      daysPerWeek: pricing.daysPerWeek ?? daysPerWeek,
+      createdAt: new Date().toISOString()
+    };
+    const updated = [quote, ...savedQuotes].slice(0, 10);
+    setSavedQuotes(updated);
+    localStorage.setItem('savedQuotes', JSON.stringify(updated));
+  };
+
+  const removeSavedQuote = (id) => {
+    const updated = savedQuotes.filter(q => q.id !== id);
+    setSavedQuotes(updated);
+    localStorage.setItem('savedQuotes', JSON.stringify(updated));
   };
 
   const fetchPricingConfig = async () => {
@@ -240,9 +264,35 @@ const Pricing = () => {
                       <small>Price adjusted for {pricing.daysPerWeek ?? daysPerWeek} day(s) per week.</small>
                     </div>
                   </div>
+                  <div style={{ marginTop: 12 }}>
+                    <button className="btn btn-secondary" onClick={saveQuote}>Save Quote</button>
+                  </div>
                 </div>
               </div>
             )}
+
+            {/* Saved Quotes */}
+            <div style={{ marginTop: 18 }}>
+              <h4>Saved Quotes</h4>
+              {savedQuotes.length === 0 ? (
+                <p>No saved quotes yet. Calculate and save a quote.</p>
+              ) : (
+                <div>
+                  {savedQuotes.map(q => (
+                    <div key={q.id} style={{ padding: 8, border: '1px solid #eee', borderRadius: 6, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                        <div>
+                          <strong>Class {q.class}</strong> — {q.subjects.length} subject(s) — <FaRupeeSign /> {q.total}
+                        </div>
+                        <div>
+                          <button className="btn btn-small" onClick={() => removeSavedQuote(q.id)}>Remove</button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
 
           {/* Find Tutor Section */}
