@@ -203,7 +203,7 @@ const Pricing = () => {
               </button>
             </div>
 
-            {pricing && (
+            {pricing && Array.isArray(pricing.subjects) && (
               <div className="pricing-result">
                 <h3>Pricing Breakdown</h3>
                 <div className="pricing-details">
@@ -237,7 +237,7 @@ const Pricing = () => {
                       <span><FaRupeeSign /> {pricing.finalAmount}</span>
                     </div>
                     <div className="total-row note">
-                      <small>Price adjusted for {pricing.daysPerWeek} day(s) per week.</small>
+                      <small>Price adjusted for {pricing.daysPerWeek ?? daysPerWeek} day(s) per week.</small>
                     </div>
                   </div>
                 </div>

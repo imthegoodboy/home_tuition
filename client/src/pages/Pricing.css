@@ -1,3 +1,18 @@
+/* Basic styling for Pricing page to avoid missing import runtime issues */
+.pricing-page { padding: 2rem 0; background: #f7fbff; min-height: 70vh; }
+.pricing-page .page-header { text-align: center; margin-bottom: 1.5rem; }
+.pricing-content { display: flex; gap: 2rem; flex-wrap: wrap; }
+.calculator-section, .find-tutor-section { background: #fff; border-radius: 8px; padding: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.06); flex: 1 1 420px; }
+.section-header { display:flex; align-items:center; gap:0.5rem; margin-bottom:1rem; }
+.section-icon { font-size:1.25rem; color:#2b6cb0 }
+.subjects-grid { display:flex; flex-wrap:wrap; gap:0.5rem }
+.subject-checkbox { display:flex; align-items:center; gap:0.5rem }
+.subjects-list { display:flex; gap:0.5rem; flex-wrap:wrap }
+.subject-tag { background:#eef2ff; padding:0.25rem 0.5rem; border-radius:4px }
+.pricing-result { margin-top:1rem }
+.pricing-details .subject-pricing { display:flex; justify-content:space-between; padding:0.25rem 0 }
+.pricing-total { margin-top:0.75rem; border-top:1px dashed #e2e8f0; padding-top:0.5rem }
+.no-tutors { padding:1rem; color:#4a5568 }
 .pricing-page {
   padding-top: 100px;
   min-height: 100vh;

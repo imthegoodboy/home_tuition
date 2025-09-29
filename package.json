@@ -12,8 +12,8 @@
     "seed": "cd server && npm run init-data",
     "start:all": "node ./scripts/startAll.js",
   "postinstall": "npm install --prefix server && cd client && npm install && npm run build",
-    "start:render": "NODE_ENV=production node server/index.js",
-    "start": "npm run start:render"
+  "start:render": "npm install --prefix server --production && NODE_ENV=production node server/index.js",
+  "start": "npm run start:render"
   },
   "keywords": ["home-tuition", "education", "react", "nodejs", "mongodb"],
   "author": "Home Tuition Team",

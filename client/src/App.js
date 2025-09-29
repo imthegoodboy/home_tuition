@@ -8,6 +8,7 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import About from './pages/About';
 import Pricing from './pages/Pricing';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import StudentDashboard from './pages/StudentDashboard';
@@ -31,7 +32,11 @@ function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
-            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/pricing" element={
+              <ErrorBoundary>
+                <Pricing />
+              </ErrorBoundary>
+            } />
             <Route path="/find-tutor" element={<FindTutor />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/login" element={<Login />} />
