@@ -64,6 +64,18 @@ const initData = async () => {
     await Subject.insertMany(subjects);
     console.log('✅ Subjects created');
 
+  // Create default pricing config
+  const PricingConfig = require('../models/PricingConfig');
+  await PricingConfig.deleteMany({});
+  const classBase = new Map();
+  // Classes 1-5 => 5000
+  for (let i = 1; i <= 5; i++) classBase.set(String(i), 5000);
+  // Class 6 => 6000, 7=>7000, ... up to 12
+  for (let i = 6; i <= 12; i++) classBase.set(String(i), i * 1000);
+  const pricingCfg = new PricingConfig({ classBase, discountPercent: 0 });
+  await pricingCfg.save();
+  console.log('✅ Default pricing configuration created');
+
     // Create sample users
     const hashedPassword = await bcrypt.hash('password123', 10);
 

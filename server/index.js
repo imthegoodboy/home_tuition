@@ -26,6 +26,7 @@ const routes = () => {
   app.use('/api/subjects', require('./routes/subjects'));
   app.use('/api/pricing', require('./routes/pricing'));
   app.use('/api/tutors', require('./routes/tutors'));
+  app.use('/api/admin', require('./routes/admin'));
 };
 
 async function connectWithRetry(uri, options = {}, retries = 5, delayMs = 2000) {

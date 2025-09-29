@@ -200,6 +200,67 @@ home-tuition-website/
 - Performance metrics
 - Payment history
 
+## 🚀 Deploying to Render (both frontend + backend)
+
+You can deploy this repository to Render in two ways:
+
+1) Single Web Service (recommended for simplicity): Build the React app during Render's build, and serve the static files from Express.
+2) Two services (more scalable): Deploy the frontend as a Static Site and the backend as a Web Service.
+
+Below are step-by-step instructions for the single-web-service approach (fastest):
+
+### Single Web Service (build & serve)
+
+1. In the root of this repository we've added a `postinstall` script that builds the client during the Render build step. This means the server will serve `client/build` when `NODE_ENV=production`.
+
+2. Files changed / important scripts:
+- `package.json` (root): contains `postinstall` to build client and `start:render` to run the server in production.
+- `server/index.js`: serves static `client/build` when NODE_ENV=production.
+
+3. Create a new Web Service on Render:
+	- Connect your GitHub repository.
+	- Build Command: npm install
+	- Start Command: npm run start:render
+	- Environment: set `NODE_ENV=production` and set `MONGODB_URI` (use MongoDB Atlas connection string) and `JWT_SECRET`.
+
+4. Add Environment Variables on Render (in the service settings):
+	- MONGODB_URI (required) e.g. mongodb+srv://user:pass@cluster.mongodb.net/dbname
+	- JWT_SECRET (required) a long secret string
+	- PORT (optional) default 5000
+
+5. Deploy. Render will run `npm install`, which triggers `postinstall` -> builds the React app into `client/build`. The server will then run with `NODE_ENV=production` and serve the build.
+
+### Two-Service approach (preferred for production)
+
+1. Frontend (Static Site on Render):
+	- Create a Static Site -> Connect repo -> Root Directory: `client`
+	- Build Command: `npm install && npm run build`
+	- Publish Directory: `client/build`
+
+2. Backend (Web Service on Render):
+	- Create a Web Service -> Connect repo -> Root Directory: `/`
+	- Build Command: `cd server && npm install`
+	- Start Command: `cd server && npm run start` (or `npm run dev` for development)
+	- Environment variables: `MONGODB_URI`, `JWT_SECRET`, `PORT`
+
+3. Set the frontend to point to the backend API URL (Render provides a service URL). In `client/package.json`, remove or override the `proxy` in development. For production builds, the client should call full API URLs or use a runtime config variable. A simple approach is to set an environment variable at build time and replace API base URL.
+
+### Notes & recommended changes for hosting on Render
+- Ensure `server/.env` is NOT checked into source. Use Render's environment variables.
+- The root `postinstall` will install client dependencies and build the React app which slightly increases build time but makes single-service deployment easy.
+- If you prefer separate services (best practice), deploy the frontend as a Static Site and backend as Web Service and use the backend URL in client API requests.
+
+### Quick checklist before deploy
+- Commit and push the repository to GitHub.
+- Make sure `server/scripts/initData.js` (seed) is not run automatically in production. Run it manually if you need seeded data.
+- Configure your MongoDB Atlas network access (allow Render's IPs or use 0.0.0.0/0 during testing).
+- Add `JWT_SECRET` and `MONGODB_URI` in Render's Environment settings.
+
+If you want, I can:
+- Add a small runtime config to inject REACT_APP_API_URL during build so the client talks to the deployed backend URL.
+- Provide exact Render dashboard screenshots and field values for each step (if you want a guided walkthrough).
+
+
 ### 5. Authentication
 - Role-based access (Student/Teacher/Admin)
 - Secure JWT authentication

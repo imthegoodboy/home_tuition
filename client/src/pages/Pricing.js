@@ -8,7 +8,10 @@ const Pricing = () => {
   const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [classes, setClasses] = useState([]);
   const [pricing, setPricing] = useState(null);
+  const [pricingConfig, setPricingConfig] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [allSubjects, setAllSubjects] = useState(false);
+  const [daysPerWeek, setDaysPerWeek] = useState(3);
   const [searchLocation, setSearchLocation] = useState('');
   const [searchPincode, setSearchPincode] = useState('');
   const [tutors, setTutors] = useState([]);
@@ -32,6 +35,7 @@ const Pricing = () => {
 
   useEffect(() => {
     fetchClasses();
+    fetchPricingConfig();
   }, []);
 
   useEffect(() => {
@@ -51,23 +55,41 @@ const Pricing = () => {
   };
 
   const calculatePricing = async () => {
-    if (!selectedClass || selectedSubjects.length === 0) {
-      alert('Please select a class and at least one subject');
+    if (!selectedClass) {
+      alert('Please select a class');
       return;
     }
 
+    if (!allSubjects && selectedSubjects.length === 0) {
+      alert('Please select at least one subject or choose All Subjects');
+      return;
+    }
     setLoading(true);
+
     try {
+
       const response = await axios.post('/api/pricing/calculate', {
         selectedSubjects,
-        class: selectedClass
+        class: selectedClass,
+        allSubjects,
+        daysPerWeek
       });
       setPricing(response.data);
+
     } catch (error) {
       console.error('Error calculating pricing:', error);
       alert('Error calculating pricing. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchPricingConfig = async () => {
+    try {
+      const response = await axios.get('/api/admin/pricing-config');
+      setPricingConfig(response.data || null);
+    } catch (error) {
+      console.warn('No pricing config available');
     }
   };
 
@@ -142,6 +164,10 @@ const Pricing = () => {
                   <div className="form-group">
                     <label className="form-label">Select Subjects</label>
                     <div className="subjects-grid">
+                      <label className="subject-checkbox">
+                        <input type="checkbox" checked={allSubjects} onChange={() => setAllSubjects(!allSubjects)} />
+                        <span className="checkbox-label">All Subjects</span>
+                      </label>
                       {cbseSubjects[selectedClass]?.map(subject => (
                         <label key={subject} className="subject-checkbox">
                           <input
@@ -157,10 +183,21 @@ const Pricing = () => {
                 </div>
               )}
 
+              {selectedClass && (
+                <div className="form-row">
+                  <div className="form-group">
+                    <label className="form-label">Days per week</label>
+                    <select value={daysPerWeek} onChange={e => setDaysPerWeek(parseInt(e.target.value))} className="form-select">
+                      {[1,2,3,4,5,6,7].map(d => <option key={d} value={d}>{d} day{d>1?'s':''} / week</option>)}
+                    </select>
+                  </div>
+                </div>
+              )}
+
               <button
                 className="btn btn-primary btn-large"
                 onClick={calculatePricing}
-                disabled={loading || !selectedClass || selectedSubjects.length === 0}
+                disabled={loading || !selectedClass || (!allSubjects && selectedSubjects.length === 0)}
               >
                 {loading ? 'Calculating...' : 'Calculate Price'}
               </button>
@@ -170,6 +207,11 @@ const Pricing = () => {
               <div className="pricing-result">
                 <h3>Pricing Breakdown</h3>
                 <div className="pricing-details">
+                  {pricingConfig?.classBase && (
+                    <div className="pricing-config">
+                      <small>Base price for Class {selectedClass}: {pricingConfig.classBase && pricingConfig.classBase[selectedClass] ? `₹${pricingConfig.classBase[selectedClass]}` : 'N/A'}</small>
+                    </div>
+                  )}
                   {pricing.subjects.map((subject, index) => (
                     <div key={index} className="subject-pricing">
                       <span className="subject-name">{subject.subject}</span>
@@ -193,6 +235,9 @@ const Pricing = () => {
                     <div className="total-row final">
                       <span>Total Monthly Fee:</span>
                       <span><FaRupeeSign /> {pricing.finalAmount}</span>
+                    </div>
+                    <div className="total-row note">
+                      <small>Price adjusted for {pricing.daysPerWeek} day(s) per week.</small>
                     </div>
                   </div>
                 </div>
